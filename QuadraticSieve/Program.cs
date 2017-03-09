@@ -12,7 +12,7 @@ namespace QuadraticSieve
         static void Main(string[] args)
         {
             QuadraticSieve.primeSupply = new derpy();
-
+            MyQuadraticsTest();
         }
 
         static void MyQuadraticsTest()
@@ -23,7 +23,6 @@ namespace QuadraticSieve
             QuadraticSieve.InitSievingRequest(N, B, x => x * x - N, sievereq);
             QuadraticSieve.SegmentSievingRequest(0, 60, sievereq);
             SievingData sievedat = new SievingData();
-            QuadraticSieve.EvaluatePoly(sievereq, sievedat);
             QuadraticSieve.Sieve(sievereq, sievedat);
             SieveResult sieveres = new SieveResult();
             QuadraticSieve.CreateFormattedSievingResult(sievereq, sievedat, sieveres);
@@ -37,9 +36,10 @@ namespace QuadraticSieve
             Console.WriteLine();
             QuadraticSieve.Gaussian(solvereq);
             printarr(solvereq.Coefficients);
+            Console.WriteLine("First free = " + solvereq.FirstFree);
         }
 
-        static void printarr(BinaryVector[] arr)
+        public static void printarr(BinaryVector[] arr)
         {
             int rowLength = arr.Length;
             int colLength = 1;

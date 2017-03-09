@@ -7,38 +7,44 @@ using System.Numerics;
 
 namespace QuadraticSieve
 {
+    // Container holding data required to perform seiving
     public class SieveRequest
     {
-        public BigInteger N;
-        public int B;
-        public List<int>[] PrimeStarts;
-        public int[] PrimeIntervals;
-        public int StartIdx;
-        public int L;
-        public int AStart;
-        public PolynomialFunction polyFunction;
+        public BigInteger N;//The number to factor
+        public int B;//The size of PrimeIntervals
+        public List<int>[] PrimeStarts;//The starting indexes for each prime factor (each prime factor is repeated at a regular interval because of quadratic residues)
+        public int[] PrimeIntervals;//The primes that are going to be used in the seive
+        public int StartIdx;//The index to start sieving at
+        public int L;//The value of the highest prime in PrimeIntervals
+        public int AStart;//The value of a to start sieving at for the polynomial function f(a)
+        public PolynomialFunction polyFunction;//The polynomial function f(a) to seive for smooth things
     }
 
     public delegate BigInteger PolynomialFunction(int x);
 
+    //Container holding data used while sieving
     public class SievingData
     {
-        public BigInteger[] V;
-        public BinaryVector[] Coefficients;
+        public BigInteger[] V;//stores all the outputs of the f(a), will get divided down as seive progresses
+        public BinaryVector[] Coefficients;//the matrix containing the prime powers mod 2 of each result
     }
 
+    //Container holding the results from sieving
     public class SieveResult
     {
-        public SieveRequest SourceRequest;
-        public List<BigInteger> V;
-        public List<BinaryVector> SmoothRelations;
+        public SieveRequest SourceRequest;//The request that produced this result
+        public List<BigInteger> V;//The values of f(a)
+        public List<BinaryVector> SmoothRelations;//Contains all the smooth relations
     }
 
+    //Container holding data required to perform guassian elimination on seive results
     public class SolveRequest
     {
         public int B;
         public int L;
+        public int FirstFree;
         public BinaryVector[] Coefficients;
+        public List<BigInteger> V;
     }
 
     public class SolveResult
@@ -107,7 +113,7 @@ namespace QuadraticSieve
         {
             for (int idx = 0; idx < acumalator.data.Length; idx++)
             {
-                acumalator.data[idx] ^= acumalator.data[idx];
+                acumalator.data[idx] ^= addent.data[idx];
             }
         }
 

@@ -24,6 +24,7 @@ namespace QuadraticSieve
             sievereq.AStart = (int)N.Sqrt() + 1;
             sievereq.StartIdx = 0;
             sievereq.polyFunction = f;
+            //the max amount of data we need to find the quadratic residues is the Bth prime (the highest one)
             sievereq.L = primeSupply[B];
 
             SievingData sievedat = new SievingData();
@@ -41,11 +42,13 @@ namespace QuadraticSieve
                 {
                     if (sievedat.V[a] % p == 0)
                     {
+                        //we found a quadratic residue (there are two for each prime that isn't 2)
                         tmp.Add(a);
                     }
                 }
                 if (tmp.Count > 0)
                 {
+                    //if the ith value is divisible by the prime k, then every k results after that will also be divisible
                     tmpPrimeIntervals.Add(p);
                     tmpPrimeStarts.Add(tmp);
                 }
@@ -53,6 +56,7 @@ namespace QuadraticSieve
 
             sievereq.PrimeIntervals = tmpPrimeIntervals.ToArray();
             sievereq.PrimeStarts = tmpPrimeStarts.ToArray();
+            //remove primes with no quadratic residues
             sievereq.B = sievereq.PrimeIntervals.Length;
         }
 
@@ -71,23 +75,37 @@ namespace QuadraticSieve
             }
         }
 
+        //really weird sieving method
         public static void Sieve(SieveRequest sievereq, SievingData sievedat)
         {
+            //get data first
+            EvaluatePoly(sievereq, sievedat);
+
+            //make transposed matrix (each BinaryVector holds the factorization for a number)
             sievedat.Coefficients = new BinaryVector[sievereq.L];
 
+            //loop through each prime
             for (int i = 0; i < sievereq.B; i++)
             {
+                //get value of prime
                 int interval = sievereq.PrimeIntervals[i];
+                //loop through each solution of the quadratic residue
                 for (int j = 0; j < sievereq.PrimeStarts[i].Count; j++)
                 {
+                    //remap start location to this sieving interval
                     int remappedStart = (interval - (sievereq.StartIdx - sievereq.PrimeStarts[i][j])) % interval;
                     if (remappedStart < 0)
                         remappedStart = remappedStart + interval;
+
+                    //sieve out each prime
                     for (int k = remappedStart; k < sievereq.L; k += interval)
                     {
+                        //attempt to save memory by not initializating the arrayelements that haven't been used yet
+                        //NOTE: this doesn't work, because at least half of the elements will have been visited
                         if (Object.ReferenceEquals(sievedat.Coefficients[k], null))
                             sievedat.Coefficients[k] = new BinaryVector(sievereq.B);
 
+                        //divide out the whole prime power
                         while (sievedat.V[k] % interval == 0)
                         {
                             sievedat.Coefficients[k][i] = sievedat.Coefficients[k][i] + 1;
@@ -105,6 +123,7 @@ namespace QuadraticSieve
             sieveres.V = new List<BigInteger>();
             for (int i = 0; i < sievereq.L; i++)
             {
+                //if number only consisted of primes that were sieved, then it is smooth
                 if (sievedat.V[i] == 1)
                 {
                     sieveres.V.Add(sievereq.polyFunction(i + sievereq.AStart + sievereq.StartIdx));
@@ -118,6 +137,8 @@ namespace QuadraticSieve
             solvereq.B = rows;
             solvereq.L = columns;
             solvereq.Coefficients = new BinaryVector[rows];
+            solvereq.V = new List<BigInteger>();
+            solvereq.FirstFree = 0;
             for (int i = 0; i < rows; i++)
             {
                 solvereq.Coefficients[i] = new BinaryVector(columns);
@@ -126,11 +147,13 @@ namespace QuadraticSieve
 
         public static void AddDataToSolveRequest(SieveResult data, SolveRequest solvereq)
         {
+            //transpose matrix, add it to the coefficients (making sure to offset by startIdx of data)
+            solvereq.V.AddRange(solvereq.V);
             for (int i = 0; i < data.V.Count; i++)
             {
                 for (int j = 0; j < data.SourceRequest.B; j++)
                 {
-                    solvereq.Coefficients[j][i + data.SourceRequest.StartIdx] = data.SmoothRelations[i][j];
+                    solvereq.Coefficients[j][i + solvereq.V.Count] = data.SmoothRelations[i][j];
                 }
             }
         }
@@ -148,14 +171,20 @@ namespace QuadraticSieve
                             BinaryVector tmp = solvereq.Coefficients[j];
                             solvereq.Coefficients[j] = solvereq.Coefficients[i];
                             solvereq.Coefficients[i] = tmp;
+                            break;
                         }
                     }
                 }
-                for (int j = i + 1; j < solvereq.B; j++)
+                if (solvereq.Coefficients[i][i] == 1)
                 {
-                    if (solvereq.Coefficients[j][i] == 1)
+                    solvereq.FirstFree = i;
+                    for (int j = 0; j < solvereq.B; j++)
                     {
-                        BinaryVector.FastAdd(solvereq.Coefficients[j], solvereq.Coefficients[i]);
+                        if (j != i)
+                            if (solvereq.Coefficients[j][i] == 1)
+                            {
+                                BinaryVector.FastAdd(solvereq.Coefficients[j], solvereq.Coefficients[i]);
+                            }
                     }
                 }
             }
