@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EllipticCurveFactorization"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuadraticSieve", "QuadraticSieve\QuadraticSieve.csproj", "{69700010-8BC3-4543-ABCC-911541953372}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuadraticSieve2", "QuadraticSieve2\QuadraticSieve2.csproj", "{92938EF2-9801-443B-8F40-F057BDB19DF8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{69700010-8BC3-4543-ABCC-911541953372}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69700010-8BC3-4543-ABCC-911541953372}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{69700010-8BC3-4543-ABCC-911541953372}.Release|Any CPU.Build.0 = Release|Any CPU
+		{92938EF2-9801-443B-8F40-F057BDB19DF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92938EF2-9801-443B-8F40-F057BDB19DF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92938EF2-9801-443B-8F40-F057BDB19DF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92938EF2-9801-443B-8F40-F057BDB19DF8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
