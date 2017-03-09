@@ -23,7 +23,7 @@ namespace QuadraticSieve
         {
             sievereq.AStart = (int)N.Sqrt() + 1;
             sievereq.StartIdx = 0;
-            sievereq.polyFunction = f;
+            sievereq.PolyFunction = f;
             //the max amount of data we need to find the quadratic residues is the Bth prime (the highest one)
             sievereq.L = primeSupply[B];
 
@@ -31,13 +31,13 @@ namespace QuadraticSieve
 
             EvaluatePoly(sievereq, sievedat);
 
-            List<List<int>> tmpPrimeStarts = new List<List<int>>();
-            List<int> tmpPrimeIntervals = new List<int>();
+            List<List<long>> tmpPrimeStarts = new List<List<long>>();
+            List<long> tmpPrimeIntervals = new List<long>();
 
             for (int pI = 0; pI < B; pI++)
             {
                 int p = primeSupply[pI];
-                List<int> tmp = new List<int>();
+                List<long> tmp = new List<long>(2);
                 for (int a = 0; a < p; a++)
                 {
                     if (sievedat.V[a] % p == 0)
@@ -71,64 +71,73 @@ namespace QuadraticSieve
             sievedat.V = new BigInteger[sievereq.L];
             for (int i = 0; i < sievereq.L; i++)
             {
-                sievedat.V[i] = sievereq.polyFunction(i + sievereq.AStart + sievereq.StartIdx);
+                sievedat.V[i] = sievereq.PolyFunction(i + sievereq.AStart + sievereq.StartIdx);
             }
         }
 
-        //really weird sieving method
-        public static void Sieve(SieveRequest sievereq, SievingData sievedat)
+        //memory saving method - is slower, but better for multithreading
+        public static void Sieve(SieveRequest sievereq, SieveResult sieveres)
         {
-            //get data first
-            EvaluatePoly(sievereq, sievedat);
-
-            //make transposed matrix (each BinaryVector holds the factorization for a number)
-            sievedat.Coefficients = new BinaryVector[sievereq.L];
-
-            //loop through each prime
-            for (int i = 0; i < sievereq.B; i++)
-            {
-                //get value of prime
-                int interval = sievereq.PrimeIntervals[i];
-                //loop through each solution of the quadratic residue
-                for (int j = 0; j < sievereq.PrimeStarts[i].Count; j++)
-                {
-                    //remap start location to this sieving interval
-                    int remappedStart = (interval - (sievereq.StartIdx - sievereq.PrimeStarts[i][j])) % interval;
-                    if (remappedStart < 0)
-                        remappedStart = remappedStart + interval;
-
-                    //sieve out each prime
-                    for (int k = remappedStart; k < sievereq.L; k += interval)
-                    {
-                        //attempt to save memory by not initializating the arrayelements that haven't been used yet
-                        //NOTE: this doesn't work, because at least half of the elements will have been visited
-                        if (Object.ReferenceEquals(sievedat.Coefficients[k], null))
-                            sievedat.Coefficients[k] = new BinaryVector(sievereq.B);
-
-                        //divide out the whole prime power
-                        while (sievedat.V[k] % interval == 0)
-                        {
-                            sievedat.Coefficients[k][i] = sievedat.Coefficients[k][i] + 1;
-                            sievedat.V[k] = sievedat.V[k] / interval;
-                        }
-                    }
-                }
-            }
-        }
-
-        public static void CreateFormattedSievingResult(SieveRequest sievereq, SievingData sievedat, SieveResult sieveres)
-        {
+            //want to optimize this further (predefine size of SmoothRelations to approximated B value)
             sieveres.SourceRequest = sievereq;
             sieveres.SmoothRelations = new List<BinaryVector>();
-            sieveres.V = new List<BigInteger>();
-            for (int i = 0; i < sievereq.L; i++)
+            sieveres.V = new List<long>();
+
+            long[] nextIdxA = new long[sievereq.B];
+            long[] nextIdxB = new long[sievereq.B];
+            for (int i = 0; i < sievereq.B; i++)
             {
-                //if number only consisted of primes that were sieved, then it is smooth
-                if (sievedat.V[i] == 1)
+                long interval = sievereq.PrimeIntervals[i];
+                long remappedStart = (interval - (sievereq.StartIdx - sievereq.PrimeStarts[i][0])) % interval;
+                if (remappedStart < 0)
+                    remappedStart = remappedStart + interval;
+                nextIdxA[i] = remappedStart;
+
+                remappedStart = (interval - (sievereq.StartIdx - sievereq.PrimeStarts[i][1])) % interval;
+                if (remappedStart < 0)
+                    remappedStart = remappedStart + interval;
+                nextIdxB[i] = remappedStart;
+            }
+            BinaryVector currVect = new BinaryVector(sievereq.B);
+            BigInteger currVal;
+            for (long i = sievereq.StartIdx; i < sievereq.L + sievereq.StartIdx; i++)
+            {
+                currVal = sievereq.PolyFunction(i);
+
+                for (int j = 0; j < sievereq.B; j++)
                 {
-                    sieveres.V.Add(sievereq.polyFunction(i + sievereq.AStart + sievereq.StartIdx));
-                    sieveres.SmoothRelations.Add(sievedat.Coefficients[i]);
+                    if (nextIdxA[j] == i)
+                    {
+                        while (currVal % sievereq.PrimeIntervals[j] == 0)
+                        {
+                            currVal /= sievereq.PrimeIntervals[j];
+                            currVect[j] = currVect[j] + 1;
+                        }
+                        nextIdxA[j] += sievereq.PrimeIntervals[j];
+                    }
+
+                    if (nextIdxB[j] == i)
+                    {
+                        while (currVal % sievereq.PrimeIntervals[j] == 0)
+                        {
+                            currVal /= sievereq.PrimeIntervals[j];
+                            currVect[j] = currVect[j] + 1;
+                        }
+                        nextIdxB[j] += sievereq.PrimeIntervals[j];
+                    }
                 }
+
+                if (currVal == 1)
+                {
+                    sieveres.SmoothRelations.Add(currVect);
+                    currVect = new BinaryVector(sievereq.B);
+                    sieveres.V.Add(i);
+                }
+                else
+                {
+                    BinaryVector.FastFill(0, currVect);
+                }
+
             }
         }
 
@@ -137,8 +146,7 @@ namespace QuadraticSieve
             solvereq.B = rows;
             solvereq.L = columns;
             solvereq.Coefficients = new BinaryVector[rows];
-            solvereq.V = new List<BigInteger>();
-            solvereq.FirstFree = 0;
+            solvereq.V = new List<long>();
             for (int i = 0; i < rows; i++)
             {
                 solvereq.Coefficients[i] = new BinaryVector(columns);
@@ -177,7 +185,6 @@ namespace QuadraticSieve
                 }
                 if (solvereq.Coefficients[i][i] == 1)
                 {
-                    solvereq.FirstFree = i;
                     for (int j = 0; j < solvereq.B; j++)
                     {
                         if (j != i)

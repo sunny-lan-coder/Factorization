@@ -12,17 +12,17 @@ namespace QuadraticSieve
     {
         public BigInteger N;//The number to factor
         public int B;//The size of PrimeIntervals
-        public List<int>[] PrimeStarts;//The starting indexes for each prime factor (each prime factor is repeated at a regular interval because of quadratic residues)
-        public int[] PrimeIntervals;//The primes that are going to be used in the seive
-        public int StartIdx;//The index to start sieving at
-        public int L;//The value of the highest prime in PrimeIntervals
-        public int AStart;//The value of a to start sieving at for the polynomial function f(a)
-        public PolynomialFunction polyFunction;//The polynomial function f(a) to seive for smooth things
+        public List<long>[] PrimeStarts;//The starting indexes for each prime factor (each prime factor is repeated at a regular interval because of quadratic residues)
+        public long[] PrimeIntervals;//The primes that are going to be used in the seive
+        public long StartIdx;//The index to start sieving at
+        public long L;//The value of the highest prime in PrimeIntervals
+        public long AStart;//The value of a to start sieving at for the polynomial function f(a)
+        public PolynomialFunction PolyFunction;//The polynomial function f(a) to seive for smooth things
     }
 
-    public delegate BigInteger PolynomialFunction(int x);
+    public delegate BigInteger PolynomialFunction(long x);
 
-    //Container holding data used while sieving
+    //Container holding data used while sieving (obselete)
     public class SievingData
     {
         public BigInteger[] V;//stores all the outputs of the f(a), will get divided down as seive progresses
@@ -33,7 +33,7 @@ namespace QuadraticSieve
     public class SieveResult
     {
         public SieveRequest SourceRequest;//The request that produced this result
-        public List<BigInteger> V;//The values of f(a)
+        public List<long> V;//The values of a
         public List<BinaryVector> SmoothRelations;//Contains all the smooth relations
     }
 
@@ -41,10 +41,9 @@ namespace QuadraticSieve
     public class SolveRequest
     {
         public int B;
-        public int L;
-        public int FirstFree;
+        public long L;
         public BinaryVector[] Coefficients;
-        public List<BigInteger> V;
+        public List<long> V;
     }
 
     public class SolveResult
@@ -54,21 +53,21 @@ namespace QuadraticSieve
 
     public class BinaryVector
     {
-        public readonly int Length;
+        public readonly long Length;
 
-        public bit this[int key]
+        public bit this[long key]
         {
             get
             {
-                int modulus = key % sizeof(long);
-                int quotient = (key - modulus) / sizeof(long);
+                int modulus = (int)(key % sizeof(long));
+                long quotient = (key - modulus) / sizeof(long);
                 return (bit)((data[quotient] >> modulus) & 1);
             }
             set
             {
-                int modulus = key % sizeof(long);
-                int quotient = (key - modulus) / sizeof(long);
-                long mask = 1 << modulus;
+                int modulus = (int)(key % sizeof(long));
+                long quotient = (key - modulus) / sizeof(long);
+                long mask = 1L << modulus;
                 if (value == bit.ONE)
                 {
                     data[quotient] |= mask;
@@ -153,14 +152,14 @@ namespace QuadraticSieve
         public static readonly bit ZERO = new bit(0);
 
 
-        private int val;
+        private long val;
 
-        private bit(int val)
+        private bit(long val)
         {
             this.val = val;
         }
 
-        public static implicit operator bit(int i)
+        public static implicit operator bit(long i)
         {
             return new bit(i);
         }
