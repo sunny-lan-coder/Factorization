@@ -7,8 +7,8 @@
     <ProjectGuid>{92938EF2-9801-443B-8F40-F057BDB19DF8}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>QuadraticSieve</RootNamespace>
-    <AssemblyName>QuadraticSieve</AssemblyName>
+    <RootNamespace>QuadraticSieve2</RootNamespace>
+    <AssemblyName>QuadraticSieve2</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -31,6 +31,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>QuadraticSieve2.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

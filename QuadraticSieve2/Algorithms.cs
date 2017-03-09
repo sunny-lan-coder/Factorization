@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
 
-namespace QuadraticSieve
+namespace QuadraticSieve2
 {
     public interface PrimeSupply
     {
@@ -76,7 +76,7 @@ namespace QuadraticSieve
         }
 
         //memory saving method - is slower, but better for multithreading
-        public static void Sieve(SieveRequest sievereq, SieveResult sieveres)
+        public static void Sieve(SieveRequest sievereq, SievingData tmp, SieveResult sieveres)
         {
             //want to optimize this further (predefine size of SmoothRelations to approximated B value)
             sieveres.SourceRequest = sievereq;
@@ -88,21 +88,31 @@ namespace QuadraticSieve
             for (int i = 0; i < sievereq.B; i++)
             {
                 long interval = sievereq.PrimeIntervals[i];
-                long remappedStart = (interval - (sievereq.StartIdx - sievereq.PrimeStarts[i][0])) % interval;
-                if (remappedStart < 0)
-                    remappedStart = remappedStart + interval;
+                long primeStart = sievereq.PrimeStarts[i][0];
+                long unoffset = sievereq.StartIdx - primeStart;
+                long rounded = (long)Math.Ceiling((unoffset) * 1D / interval) * interval;
+                long remappedStart = rounded + primeStart;
                 nextIdxA[i] = remappedStart;
 
-                remappedStart = (interval - (sievereq.StartIdx - sievereq.PrimeStarts[i][1])) % interval;
-                if (remappedStart < 0)
-                    remappedStart = remappedStart + interval;
-                nextIdxB[i] = remappedStart;
+                if (sievereq.PrimeStarts[i].Count == 1)
+                {
+                    nextIdxB[i] = -1;
+                }
+                else
+                {
+                    interval = sievereq.PrimeIntervals[i];
+                    primeStart = sievereq.PrimeStarts[i][1];
+                    unoffset = sievereq.StartIdx - primeStart;
+                    rounded = (long)Math.Ceiling((unoffset) * 1D / interval) * interval;
+                    remappedStart = rounded + primeStart;
+                    nextIdxB[i] = remappedStart;
+                }
             }
             BinaryVector currVect = new BinaryVector(sievereq.B);
             BigInteger currVal;
             for (long i = sievereq.StartIdx; i < sievereq.L + sievereq.StartIdx; i++)
             {
-                currVal = sievereq.PolyFunction(i);
+                currVal = sievereq.PolyFunction(i + sievereq.AStart);
 
                 for (int j = 0; j < sievereq.B; j++)
                 {
@@ -131,7 +141,8 @@ namespace QuadraticSieve
                 {
                     sieveres.SmoothRelations.Add(currVect);
                     currVect = new BinaryVector(sievereq.B);
-                    sieveres.V.Add(i);
+                    sieveres.V.Add(i+sievereq.AStart);
+                    tmp.SmoothsFound++;
                 }
                 else
                 {
@@ -150,19 +161,6 @@ namespace QuadraticSieve
             for (int i = 0; i < rows; i++)
             {
                 solvereq.Coefficients[i] = new BinaryVector(columns);
-            }
-        }
-
-        public static void AddDataToSolveRequest(SieveResult data, SolveRequest solvereq)
-        {
-            //transpose matrix, add it to the coefficients (making sure to offset by startIdx of data)
-            solvereq.V.AddRange(solvereq.V);
-            for (int i = 0; i < data.V.Count; i++)
-            {
-                for (int j = 0; j < data.SourceRequest.B; j++)
-                {
-                    solvereq.Coefficients[j][i + solvereq.V.Count] = data.SmoothRelations[i][j];
-                }
             }
         }
 

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
 
-namespace QuadraticSieve
+namespace QuadraticSieve2
 {
     // Container holding data required to perform seiving
     public class SieveRequest
@@ -22,11 +22,11 @@ namespace QuadraticSieve
 
     public delegate BigInteger PolynomialFunction(long x);
 
-    //Container holding data used while sieving (obselete)
+    //Container holding data used while sieving
     public class SievingData
     {
         public BigInteger[] V;//stores all the outputs of the f(a), will get divided down as seive progresses
-        public BinaryVector[] Coefficients;//the matrix containing the prime powers mod 2 of each result
+        public int SmoothsFound;
     }
 
     //Container holding the results from sieving
@@ -44,6 +44,19 @@ namespace QuadraticSieve
         public long L;
         public BinaryVector[] Coefficients;
         public List<long> V;
+
+        public void AddDataToSolveRequest(SieveResult data)
+        {
+            //transpose matrix, add it to the coefficients (making sure to offset by startIdx of data)
+            for (int i = 0; i < data.V.Count; i++)
+            {
+                for (int j = 0; j < data.SourceRequest.B; j++)
+                {
+                   Coefficients[j][i + V.Count] = data.SmoothRelations[i][j];
+                }
+            }
+            V.AddRange(data.V);
+        }
     }
 
     public class SolveResult

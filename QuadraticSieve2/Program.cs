@@ -5,7 +5,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace QuadraticSieve
+namespace QuadraticSieve2
 {
     class Program
     {
@@ -13,36 +13,32 @@ namespace QuadraticSieve
         {
             QuadraticSieve.primeSupply = new derpy();
             MyQuadraticsTest();
+            Console.ReadLine();
         }
 
         static void MyQuadraticsTest()
         {
-            BigInteger N = 9028325;
-            int B = 35;
-            SieveRequest sievereq = new SieveRequest();
-            QuadraticSieve.InitSievingRequest(N, B, x => x * x - N, sievereq);
-            QuadraticSieve.SegmentSievingRequest((int)N.Sqrt()+1,B<<5, sievereq);
-            SievingData sievedat = new SievingData();
-            QuadraticSieve.Sieve(sievereq, sievedat);
-            SieveResult sieveres = new SieveResult();
-            QuadraticSieve.CreateFormattedSievingResult(sievereq, sievedat, sieveres);
-            printarr(sieveres.V);
-            printarr(sieveres.SmoothRelations);
-            Console.WriteLine();
-            SolveRequest solvereq = new SolveRequest();
-            QuadraticSieve.InitSolveRequest(sievereq.B, sieveres.V.Count, solvereq);
-            QuadraticSieve.AddDataToSolveRequest(sieveres, solvereq);
-            printarr(solvereq.Coefficients);
-            Console.WriteLine();
-            QuadraticSieve.Gaussian(solvereq);
-            printarr(solvereq.Coefficients);
-            Console.WriteLine("First free = " + solvereq.FirstFree);
+            BigInteger N = 90283;
+            int B = 20;
+            SieveRequest req = new SieveRequest();
+            QuadraticSieve.InitSievingRequest(N, B, x => x * x - N, req);
+            QuadraticSieve.SegmentSievingRequest(0, 60, req);
+            SieveResult res = new SieveResult();
+            SievingData tmp = new SievingData();
+            QuadraticSieve.Sieve(req, tmp, res);
+            res.V.ForEach(x => Console.WriteLine(x * x - N));
+
+            SolveRequest sreq = new SolveRequest();
+            QuadraticSieve.InitSolveRequest(req.B,tmp.SmoothsFound,sreq);
+            sreq.AddDataToSolveRequest(res);
+            QuadraticSieve.Gaussian(sreq);
+            printarr(sreq.Coefficients);
         }
 
         public static void printarr(BinaryVector[] arr)
         {
             int rowLength = arr.Length;
-            int colLength = 1;
+            long colLength = 1;
 
             for (int i = 0; i < rowLength; i++)
             {
@@ -93,7 +89,7 @@ namespace QuadraticSieve
         static void printarr(List<BinaryVector> arr)
         {
             int rowLength = arr.Count;
-            int colLength = 1;
+            long colLength = 1;
 
             for (int i = 0; i < rowLength; i++)
             {
