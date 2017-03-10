@@ -7,37 +7,29 @@ using System.Numerics;
 
 namespace QuadraticSieve2
 {
-    // Container holding data required to perform seiving
-    public class SieveRequest
+    // Container holding data required to prior to seiving
+    public class SieveInitInfo
     {
         public BigInteger N;//The number to factor
         public int B;//The size of PrimeIntervals
         public List<long>[] PrimeStarts;//The starting indexes for each prime factor (each prime factor is repeated at a regular interval because of quadratic residues)
         public long[] PrimeIntervals;//The primes that are going to be used in the seive
-        public long StartIdx;//The index to start sieving at
-        public long L;//The value of the highest prime in PrimeIntervals
         public long AStart;//The value of a to start sieving at for the polynomial function f(a)
         public PolynomialFunction PolyFunction;//The polynomial function f(a) to seive for smooth things
     }
 
     public delegate BigInteger PolynomialFunction(long x);
 
-    //Container holding data used while sieving
-    public class SievingData
-    {
-        public BigInteger[] V;//stores all the outputs of the f(a), will get divided down as seive progresses
-        public int SmoothsFound;
-    }
-
     //Container holding the results from sieving
     public class SieveResult
     {
-        public SieveRequest SourceRequest;//The request that produced this result
+        public int B;//size of an individual Smooth relation
+        public int SmoothsFound;//used for multithreading, to determine how many have been found so far
         public List<long> V;//The values of a
         public List<BinaryVector> SmoothRelations;//Contains all the smooth relations
     }
 
-    //Container holding data required to perform guassian elimination on seive results
+    //Container holding data required to perform get solution from seive data
     public class SolveRequest
     {
         public int B;
@@ -45,14 +37,27 @@ namespace QuadraticSieve2
         public BinaryVector[] Coefficients;
         public List<long> V;
 
+
+        public SolveRequest(int rows, int columns)
+        {
+            B = rows;
+            L = columns;
+            Coefficients = new BinaryVector[rows];
+            V = new List<long>();
+            for (int i = 0; i < rows; i++)
+            {
+                Coefficients[i] = new BinaryVector(columns);
+            }
+        }
+
         public void AddDataToSolveRequest(SieveResult data)
         {
             //transpose matrix, add it to the coefficients (making sure to offset by startIdx of data)
             for (int i = 0; i < data.V.Count; i++)
             {
-                for (int j = 0; j < data.SourceRequest.B; j++)
+                for (int j = 0; j < data.B; j++)
                 {
-                   Coefficients[j][i + V.Count] = data.SmoothRelations[i][j];
+                    Coefficients[j][i + V.Count] = data.SmoothRelations[i][j];
                 }
             }
             V.AddRange(data.V);
@@ -61,7 +66,14 @@ namespace QuadraticSieve2
 
     public class SolveResult
     {
-        public List<BinaryVector> solutions;
+        public List<BinaryVector> Solutions;
+        public List<long> FreeVariables;
+        public BinaryVector[] Coefficients;
+
+        public SolveResult()
+        {
+            FreeVariables = new List<long>();
+        }
     }
 
     public class BinaryVector

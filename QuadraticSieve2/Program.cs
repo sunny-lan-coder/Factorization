@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -18,21 +19,24 @@ namespace QuadraticSieve2
 
         static void MyQuadraticsTest()
         {
-            BigInteger N = 90283;
+            BigInteger N = 90283876;
             int B = 20;
-            SieveRequest req = new SieveRequest();
-            QuadraticSieve.InitSievingRequest(N, B, x => x * x - N, req);
-            QuadraticSieve.SegmentSievingRequest(0, 60, req);
+            SieveInitInfo req = new SieveInitInfo();
+            req.B = B;
+            req.AStart = (int)N.Sqrt() + 1;
+            req.PolyFunction = x => x * x - N;
+            //the max amount of data we need to find the quadratic residues is the Bth prime (the highest one)
+            QuadraticSieve.FindQuadraticResidues(req);
             SieveResult res = new SieveResult();
-            SievingData tmp = new SievingData();
-            QuadraticSieve.Sieve(req, tmp, res);
+            QuadraticSieve.Sieve(req, res, 0, 60);
             res.V.ForEach(x => Console.WriteLine(x * x - N));
 
-            SolveRequest sreq = new SolveRequest();
-            QuadraticSieve.InitSolveRequest(req.B,tmp.SmoothsFound,sreq);
+            SolveRequest sreq = new SolveRequest(req.B, res.SmoothsFound);
             sreq.AddDataToSolveRequest(res);
-            QuadraticSieve.Gaussian(sreq);
+            SolveResult sres = new SolveResult();
+            QuadraticSieve.Gaussian(sreq, sres);
             printarr(sreq.Coefficients);
+
         }
 
         public static void printarr(BinaryVector[] arr)

@@ -22,7 +22,7 @@ namespace QuadraticSieve
         public static void InitSievingRequest(BigInteger N, int B, PolynomialFunction f, SieveRequest sievereq)
         {
             sievereq.AStart = (int)N.Sqrt() + 1;
-            sievereq.StartIdx = 0;
+            StartIdx = 0;
             sievereq.polyFunction = f;
             //the max amount of data we need to find the quadratic residues is the Bth prime (the highest one)
             sievereq.L = primeSupply[B];
@@ -62,7 +62,7 @@ namespace QuadraticSieve
 
         public static void SegmentSievingRequest(int startIdx, int L, SieveRequest sievereq)
         {
-            sievereq.StartIdx = startIdx;
+            StartIdx = startIdx;
             sievereq.L = L;
         }
 
@@ -71,7 +71,7 @@ namespace QuadraticSieve
             sievedat.V = new BigInteger[sievereq.L];
             for (int i = 0; i < sievereq.L; i++)
             {
-                sievedat.V[i] = sievereq.polyFunction(i + sievereq.AStart + sievereq.StartIdx);
+                sievedat.V[i] = sievereq.polyFunction(i + sievereq.AStart + StartIdx);
             }
         }
 
@@ -93,7 +93,7 @@ namespace QuadraticSieve
                 for (int j = 0; j < sievereq.PrimeStarts[i].Count; j++)
                 {
                     //remap start location to this sieving interval
-                    int remappedStart = (interval - (sievereq.StartIdx - sievereq.PrimeStarts[i][j])) % interval;
+                    int remappedStart = (interval - (StartIdx - sievereq.PrimeStarts[i][j])) % interval;
                     if (remappedStart < 0)
                         remappedStart = remappedStart + interval;
 
@@ -126,7 +126,7 @@ namespace QuadraticSieve
                 //if number only consisted of primes that were sieved, then it is smooth
                 if (sievedat.V[i] == 1)
                 {
-                    sieveres.V.Add(sievereq.polyFunction(i + sievereq.AStart + sievereq.StartIdx));
+                    sieveres.V.Add(sievereq.polyFunction(i + sievereq.AStart + StartIdx));
                     sieveres.SmoothRelations.Add(sievedat.Coefficients[i]);
                 }
             }
