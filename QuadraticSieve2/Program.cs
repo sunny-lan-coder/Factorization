@@ -21,10 +21,7 @@ namespace QuadraticSieve2
         {
             BigInteger N = 90283876;
             int B = 20;
-            SieveInitInfo req = new SieveInitInfo();
-            req.B = B;
-            req.AStart = (int)N.Sqrt() + 1;
-            req.PolyFunction = x => x * x - N;
+            SieveInitInfo req = new SieveInitInfo(B, new AS2MNPolyFunc(N));
             //the max amount of data we need to find the quadratic residues is the Bth prime (the highest one)
             QuadraticSieve.FindQuadraticResidues(req);
             SieveResult res = new SieveResult();

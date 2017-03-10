@@ -27,7 +27,7 @@ namespace QuadraticSieve2
             BigInteger[] V = new BigInteger[L];
             for (int i = 0; i < L; i++)
             {
-                V[i] = sievereq.PolyFunction(i + sievereq.AStart);
+                V[i] = sievereq.PolyFunction.F(i + sievereq.AStart);
             }
 
             List<List<long>> tmpPrimeStarts = new List<List<long>>();
@@ -96,7 +96,7 @@ namespace QuadraticSieve2
             BigInteger currVal;
             for (long i = startIdx; i < L + startIdx; i++)
             {
-                currVal = sievereq.PolyFunction(i + sievereq.AStart);
+                currVal = sievereq.PolyFunction.F(i + sievereq.AStart);
 
                 for (int j = 0; j < sievereq.B; j++)
                 {

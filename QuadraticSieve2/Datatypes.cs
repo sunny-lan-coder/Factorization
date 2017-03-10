@@ -10,15 +10,45 @@ namespace QuadraticSieve2
     // Container holding data required to prior to seiving
     public class SieveInitInfo
     {
-        public BigInteger N;//The number to factor
         public int B;//The size of PrimeIntervals
         public List<long>[] PrimeStarts;//The starting indexes for each prime factor (each prime factor is repeated at a regular interval because of quadratic residues)
         public long[] PrimeIntervals;//The primes that are going to be used in the seive
         public long AStart;//The value of a to start sieving at for the polynomial function f(a)
         public PolynomialFunction PolyFunction;//The polynomial function f(a) to seive for smooth things
+
+        public SieveInitInfo(int B, PolynomialFunction f)
+        {
+            this.B = B;
+            PolyFunction = f;
+            AStart = f.PositivePoint();
+        }
     }
 
-    public delegate BigInteger PolynomialFunction(long x);
+    public interface PolynomialFunction
+    {
+        BigInteger F(long x);//should return value of f(x)
+        long PositivePoint();//should return first x value at which output >0
+    }
+
+    //defult polynomial function for sieving A Squared Minus N (needs better naming)
+    public class AS2MNPolyFunc : PolynomialFunction
+    {
+        private BigInteger n;
+        public AS2MNPolyFunc(BigInteger n)
+        {
+            this.n = n;
+        }
+        public BigInteger F(long x)
+        {
+            return x * x - n;
+        }
+
+        public long PositivePoint()
+        {
+            return (long)n.Sqrt() + 1;
+        }
+    }
+
 
     //Container holding the results from sieving
     public class SieveResult
