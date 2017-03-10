@@ -19,8 +19,8 @@ namespace QuadraticSieve2
 
         static void MyQuadraticsTest()
         {
-            BigInteger N = 90283876;
-            int B = 20;
+            BigInteger N = 902838643787436486;
+            int B = 30;
             SieveInitInfo req = new SieveInitInfo(B, new AS2MNPolyFunc(N));
             //the max amount of data we need to find the quadratic residues is the Bth prime (the highest one)
             QuadraticSieve.FindQuadraticResidues(req);
@@ -30,8 +30,7 @@ namespace QuadraticSieve2
 
             SolveRequest sreq = new SolveRequest(req.B, res.SmoothsFound);
             sreq.AddDataToSolveRequest(res);
-            SolveResult sres = new SolveResult();
-            QuadraticSieve.Gaussian(sreq, sres);
+            SolveResult sres = QuadraticSieve.Gaussian(sreq);
             printarr(sreq.Coefficients);
 
         }

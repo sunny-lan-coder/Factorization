@@ -7,17 +7,8 @@ using System.Numerics;
 
 namespace QuadraticSieve2
 {
-    public interface PrimeSupply
+    public partial class QuadraticSieve
     {
-        int this[int key]
-        {
-            get;
-        }
-    }
-
-    public class QuadraticSieve
-    {
-        public static PrimeSupply primeSupply;
 
         public static void FindQuadraticResidues(SieveInitInfo sievereq)
         {
@@ -133,67 +124,6 @@ namespace QuadraticSieve2
                     BinaryVector.FastFill(0, currVect);
                 }
 
-            }
-        }
-
-        public static void Gaussian(SolveRequest solvereq, SolveResult result)
-        {
-            for (int i = 0; i < Math.Min(solvereq.B, solvereq.L); i++)
-            {
-                if (solvereq.Coefficients[i][i] == 0)
-                {
-                    for (int j = i + 1; j < solvereq.B; j++)
-                    {
-                        if (solvereq.Coefficients[j][i] == 1)
-                        {
-                            BinaryVector tmp = solvereq.Coefficients[j];
-                            solvereq.Coefficients[j] = solvereq.Coefficients[i];
-                            solvereq.Coefficients[i] = tmp;
-                            break;
-                        }
-                    }
-                }
-                if (solvereq.Coefficients[i][i] == 1)
-                {
-                    for (int j = 0; j < solvereq.B; j++)
-                    {
-                        if (j != i)
-                            if (solvereq.Coefficients[j][i] == 1)
-                            {
-                                BinaryVector.FastAdd(solvereq.Coefficients[j], solvereq.Coefficients[i]);
-                            }
-                    }
-                }
-                else
-                {
-                    result.FreeVariables.Add(i);
-                }
-            }
-            result.Coefficients = solvereq.Coefficients;
-        }
-    }
-
-    public static class NumberTheory
-    {
-        // Newton's Method for finding sqrt
-        public static BigInteger Sqrt(this BigInteger n)
-        {
-            var prev = n + 1; var cur = n;
-            while (true)
-            {
-                prev = cur;
-                cur = (n / cur + cur) / 2;
-                if (BigInteger.Abs(prev - cur) <= 1)
-                {
-                    var test = cur * cur - n;
-                    if (test == 0)
-                        return cur;
-                    else if (BigInteger.Abs(test) <= 2 * n)
-                    {
-                        if (test > 0) return cur - 1;
-                        else return cur;
-                    }
-                }
             }
         }
     }

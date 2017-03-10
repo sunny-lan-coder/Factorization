@@ -67,7 +67,6 @@ namespace QuadraticSieve2
         public BinaryVector[] Coefficients;
         public List<long> V;
 
-
         public SolveRequest(int rows, int columns)
         {
             B = rows;
@@ -94,16 +93,9 @@ namespace QuadraticSieve2
         }
     }
 
-    public class SolveResult
+    public interface SolveResult
     {
-        public List<BinaryVector> Solutions;
-        public List<long> FreeVariables;
-        public BinaryVector[] Coefficients;
-
-        public SolveResult()
-        {
-            FreeVariables = new List<long>();
-        }
+        BinaryVector GetNextSolution();
     }
 
     public class BinaryVector
@@ -196,6 +188,16 @@ namespace QuadraticSieve2
             data = new long[(long)Math.Ceiling((double)length / sizeof(long))];
             this.Length = length;
         }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 
     /// <summary>
@@ -205,7 +207,6 @@ namespace QuadraticSieve2
     {
         public static readonly bit ONE = new bit(1);
         public static readonly bit ZERO = new bit(0);
-
 
         private long val;
 
@@ -264,6 +265,16 @@ namespace QuadraticSieve2
         public override string ToString()
         {
             return "" + val;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
     }
 }

@@ -47,7 +47,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Algorithms.cs" />
+    <Compile Include="Algorithms-Misc.cs" />
+    <Compile Include="Algorithms-Solve.cs" />
+    <Compile Include="Algorithms-Sieve.cs" />
     <Compile Include="Datatypes.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
