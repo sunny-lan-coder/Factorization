@@ -56,6 +56,7 @@ namespace QuadraticSieve2
         public int B;//size of an individual Smooth relation
         public int SmoothsFound;//used for multithreading, to determine how many have been found so far
         public List<long> V;//The values of a
+        public List<BigInteger> VOut;//Output values of function given a
         public List<BinaryVector> SmoothRelations;//Contains all the smooth relations
     }
 
@@ -66,13 +67,15 @@ namespace QuadraticSieve2
         public long L;
         public BinaryVector[] Coefficients;
         public List<long> V;
+        public List<BigInteger> VOut;
 
-        public SolveRequest(int rows, int columns)
+        public SolveRequest(int rows,long  columns)
         {
             B = rows;
-            L = columns;
+            L = 0;
             Coefficients = new BinaryVector[rows];
             V = new List<long>();
+            VOut = new List<BigInteger>();
             for (int i = 0; i < rows; i++)
             {
                 Coefficients[i] = new BinaryVector(columns);
@@ -90,12 +93,18 @@ namespace QuadraticSieve2
                 }
             }
             V.AddRange(data.V);
+            VOut.AddRange(data.VOut);
+            L += data.SmoothsFound;
         }
     }
 
     public interface SolveResult
     {
         BinaryVector GetNextSolution();
+        //need better name for this: the number of time the solutions loop around
+        bool HasNext();
+
+        void ResetSolution();
     }
 
     public class BinaryVector
@@ -157,7 +166,7 @@ namespace QuadraticSieve2
 
         public static void FastAdd(BinaryVector acumalator, BinaryVector addent)
         {
-            for (int idx = 0; idx < acumalator.data.Length; idx++)
+            for (int idx = 0; idx < Math.Min(acumalator.data.Length, addent.data.Length); idx++)
             {
                 acumalator.data[idx] ^= addent.data[idx];
             }
@@ -176,14 +185,9 @@ namespace QuadraticSieve2
             }
         }
 
-        public static long CircularLeftShift(long input, int n)
-        {
-            return input << n | input >> (sizeof(long) - n);
-        }
-
         private long[] data;
 
-        public BinaryVector(int length)
+        public BinaryVector(long length)
         {
             data = new long[(long)Math.Ceiling((double)length / sizeof(long))];
             this.Length = length;

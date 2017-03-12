@@ -57,6 +57,7 @@ namespace QuadraticSieve2
             sieveres.SmoothRelations = new List<BinaryVector>();
             sieveres.V = new List<long>();
             sieveres.B = sievereq.B;
+            sieveres.VOut = new List<BigInteger>();
 
             long[] nextIdxA = new long[sievereq.B];
             long[] nextIdxB = new long[sievereq.B];
@@ -117,6 +118,7 @@ namespace QuadraticSieve2
                     sieveres.SmoothRelations.Add(currVect);
                     currVect = new BinaryVector(sievereq.B);
                     sieveres.V.Add(i + sievereq.AStart);
+                    sieveres.VOut.Add(sievereq.PolyFunction.F(i + sievereq.AStart));
                     sieveres.SmoothsFound++;
                 }
                 else

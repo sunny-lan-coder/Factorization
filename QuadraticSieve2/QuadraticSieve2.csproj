@@ -53,6 +53,7 @@
     <Compile Include="Datatypes.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Threading.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
