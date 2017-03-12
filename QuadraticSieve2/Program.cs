@@ -20,23 +20,22 @@ namespace QuadraticSieve2
         static void MyQuadraticsTest()
         {
             BigInteger N = BigInteger.Parse(Console.ReadLine());
-            int B = 100;
+            int B = slkjhjdf.SmallPrimes.Length-1;
             SieveInitInfo req = new SieveInitInfo(B, new AS2MNPolyFunc(N));
+          
             //the max amount of data we need to find the quadratic residues is the Bth prime (the highest one)
             QuadraticSieve.FindQuadraticResidues(req);
-            SieveResult res = new SieveResult();
-            QuadraticSieve.Sieve(req, res, 0, 109090);
-           // res.V.ForEach(x => Console.WriteLine(x * x - N));
-
-            SolveRequest sreq = new SolveRequest(req.B, res.SmoothsFound);
-            sreq.AddDataToSolveRequest(res);
+            // QuadraticSieve.Sieve(req, res, 0, 109090);
+            Console.WriteLine("Sieving for smooths...");
+            SolveRequest sreq = QuadraticSieve.MultiThreadSieve(B + 10, B, new SinglePolynomialGen(req, 200000), 2, 500);
+            Console.WriteLine("Done sieving. Performing solve...");
             SolveResult sres = QuadraticSieve.Gaussian(sreq);
-
+            //   sreq.V.ForEach(x => Console.WriteLine(x * x - N));
 
             BigInteger factor;
             if (QuadraticSieve.GetFactor(N, sreq, sres, out factor))
 
-                Console.WriteLine("{0} = {1} * {2}",N,factor,N/factor);
+                Console.WriteLine("{0} = {1} * {2}", N, factor, N / factor);
 
 
         }

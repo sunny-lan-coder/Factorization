@@ -68,9 +68,11 @@ namespace QuadraticSieve2
         public BinaryVector[] Coefficients;
         public List<long> V;
         public List<BigInteger> VOut;
+        private long columns;
 
-        public SolveRequest(int rows,long  columns)
+        public SolveRequest(int rows, long columns)
         {
+            this.columns = columns;
             B = rows;
             L = 0;
             Coefficients = new BinaryVector[rows];
@@ -95,6 +97,27 @@ namespace QuadraticSieve2
             V.AddRange(data.V);
             VOut.AddRange(data.VOut);
             L += data.SmoothsFound;
+        }
+
+        public bool AddDataToSolveRequestMax(SieveResult data)
+        {
+            long tmp = L;
+            //transpose matrix, add it to the coefficients (making sure to offset by startIdx of data)
+            for (int i = 0; i < data.V.Count; i++)
+            {
+                for (int j = 0; j < data.B; j++)
+                {
+                    Coefficients[j][i + tmp] = data.SmoothRelations[i][j];
+                }
+                V.Add(data.V[i]);
+                VOut.Add(data.VOut[i]);
+                L++;
+                if (L >= columns)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 
